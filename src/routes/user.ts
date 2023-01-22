@@ -1,16 +1,17 @@
 import express, {RequestHandler} from "express";
-import {join} from "path";
+import {body, validationResult} from "express-validator";
 import multer from "multer";
 import {nanoid} from "nanoid";
-import {User} from "@/models/user";
+import {join} from "path";
+
+import {HashPassword} from "@/lib/hash_password";
 import {
-  isUniqueEmail,
   ensureAuthUser,
   forbidAuthUser,
+  isUniqueEmail,
 } from "@/middlewares/authentication";
 import {ensureCorrectUser} from "@/middlewares/current_user";
-import {body, validationResult} from "express-validator";
-import {HashPassword} from "@/lib/hash_password";
+import {User} from "@/models/user";
 
 export const userRouter = express.Router();
 
@@ -193,7 +194,7 @@ userRouter.patch(
     if (!user) return next(new Error("Invalid error: The user is undefined."));
     Object.assign(user, {name, email});
     if (req.file) {
-      user.imageName = req.file.path;
+      user.imageName = req.file.path.replace("public", "");
     } else {
       console.log("no file");
     }
